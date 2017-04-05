@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# update & upgrade #
+sudo apt-get update
+sudo apt-get upgrade
+
+# INSTALL Openbox and system #
+sudo apt-get install xorg xdm pavucontrol xfce4-volumed volumeicon-alsa xfce4-power-manager xfce4-notifyd openbox openbox-xdgmenu obmenu lxappearance gmrun suckless-tools tint2 terminator mousepad midori gtk2-engines-murrine gtk3-engines-unico thunar gnome-keyring policykit-1-gnome udisks2 upower network-manager network-manager-gnome synaptic file-roller gdebi pm-utils gsimplecal compton system-config-printer-gnome dmz-cursor-theme qt4-qtconfig thunar-archive-plugin unclutter gnome-screenshot hsetroot ttf-ubuntu-font-family arandr seahorse

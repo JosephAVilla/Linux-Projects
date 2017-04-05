@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Install backgrounds, themes, icons, and xdm config #
+sudo rm -rf /etc/X11/xdm
+sudo mv xdm /etc/X11
+
+sudo rm -rf /usr/share/icons
+tar xvzf icons.tar.gz
+sudo mv icons /usr/share
+
+sudo rm -rf /usr/share/themes
+tar xvzf themes.tar.gz
+sudo mv themes /usr/share
+
+sudo rm -rf /lib/plymouth/themes/ubuntu-text
+sudo mv ubuntu-text /lib/plymouth/themes
+
+# Update user scripts titn2restart and compton-restart #
+sudo mv compton-restart /usr/bin
+sudo chmod +x /usr/bin/compton-restart
+
+sudo mv tint2restart /usr/bin
+sudo chmod +x /usr/bin/tint2restart
+
+sudo mv conky-restart /usr/bin
+sudo chmod +x /usr/bin/conky-restart
+
+sudo mv main-restart /usr/bin
+sudo chmod +x /usr/bin/main-restart
+
+# Update system files #
+sudo mv 20-intel.conf /usr/share/X11/xorg.conf.d
+
+sudo rm -rf /etc/network/interfaces
+sudo mv interfaces /etc/network
+
+sudo rm -rf /etc/NetworkManager/NetworkManager.conf
+sudo mv NetworkManager.conf /etc/NetworkManager
+
+# Set cursor theme #
+sudo update-alternatives --config x-cursor-theme
+
+# Remove Files #
+#cd ..
+#sudo rm -rf system
+# cp %n /home/gateway/Pictures/backgrounds/wallpaper.png && nitrogen --set-zoom-fill /home/gateway/Pictures/backgrounds/wallpaper.png

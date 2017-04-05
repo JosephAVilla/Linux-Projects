@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# update & upgrade #
+sudo apt-get update
+
+# INSTALL Applications #
+sudo apt-get install vlc evince mirage catfish lxtask gimp audacious transmission libreoffice hardinfo gparted gcalctool simple-scan firefox ubuntu-restricted-addons ubuntu-restricted-extras software-properties-gtk language-selector-gnome cups cups-pdf printer-driver-hpijs camorama visualboyadvance-gtk xfburn clipit
