@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# update & upgrade #
+sudo apt-get update
+sudo apt-get autoclean
+sudo apt-get autoremove
+
+# INSTALL Applications #
+sudo apt-get install evince ristretto catfish gimp audacious transmission libreoffice hardinfo gparted gnome-calculator simple-scan firefox ubuntu-restricted-addons ubuntu-restricted-extras software-properties-gtk language-selector-gnome cups hplip printer-driver-pxljr camorama visualboyadvance-gtk xfburn xfce4-appearance-settings menulibre evince-previewer gucharmap tilem unetbootin xfce4-whiskermenu-plugin

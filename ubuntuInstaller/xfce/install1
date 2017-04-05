@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# update & upgrade #
+sudo apt-get update
+sudo apt-get dist-upgrade
+
+# Install basic graphics stack #
+sudo apt-get install xserver-xorg xserver-xorg-core xfonts-base xinit x11-xserver-utils
+
+# Install desktop environment and basic packages #
+sudo apt-get install xfwm4 xfce4-panel xfce4-settings xfce4-session xfce4-terminal xfdesktop4 xfce4-taskmanager xfce4-power-manager xfce4-notifyd xfce4-screenshooter xfce4-utils xfce4-session-logout xfwm4-settings
+
+# Install  login manager #
+sudo apt-get install lightdm lightdm-gtk-greeter
+
+# Install automatic recognition of inserted USB #
+sudo apt-get install gvfs gvfs-backends policykit-1 udisks2
+
+# Install sound packages #
+sudo apt-get install xfce-volumed pavucontrol pulseaudio gstreamer0.10-plugins-base gstreamer0.10-plugins-good gstreamer0.10-plugins-bad gstreamer0.10-pulseaudio
+
+# Install network and printer #
+sudo apt-get install network-manager network-manager-gnome ca-certificates system-config-printer-gnome system-config-printer-udev system-config-printer-common
+
+# Install fonts #
+sudo apt-get install ttf-dejavu-core ttf-freefont ttf-ubuntu-font-family
+
+# Install basic applications #
+sudo apt-get install dmz-cursor-theme qt4-qtconfig thunar midori mousepad synaptic file-roller gdebi thunar-archive-plugin
