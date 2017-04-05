@@ -1,0 +1,231 @@
+#!/bin/bash
+#-------------------------------------------------------------------------------
+#Created by Joseph Villa: harmony89@gmail.com
+#Based on helmuthdu mailto's aui script
+#-------------------------------------------------------------------------------
+#This program is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#-------------------------------------------------------------------------------
+
+################################# Update System ################################
+pacman -Syu
+
+############################### Setup sharedfuncs ##############################
+if [[ -f `pwd`/sharedfuncs ]]; then
+  source sharedfuncs
+else
+  echo "missing file: sharedfuncs"
+  exit 1
+fi
+
+################################# Setup System #################################
+LOOP=1
+while [ $LOOP -eq 1 ]; do
+
+	### List options ###
+	echo ""
+	echo "Setup System"
+	print_line
+	echo "1) Setup Locale and Time"
+	echo "2) Setup hostname"
+	echo "3) Configure repositories"
+	echo "4) Set root password"
+	echo "5) Create user and set password"
+	echo "6) Setup grub"
+	echo "n) Next"
+	echo ""
+
+	printf "user input: "
+	read -a OPTIONS
+
+	for OPT in ${OPTIONS[@]}; do
+
+		case "$OPT" in
+			1)
+				nano /etc/locale.gen
+				locale-gen
+				echo LANG=en_US.UTF-8 > /etc/locale.conf
+				
+				ln -sf /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
+				hwclock --systohc --utc
+				;;
+			2)
+				echo "input hostname: "
+				read hostname
+				echo $hostname > /etc/hostname
+				;;
+			3)
+				echo "" >> /etc/pacman.conf
+				echo '[multilib]' >> /etc/pacman.conf
+				echo 'Include = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf
+				echo "" >> /etc/pacman.conf
+				echo '[archlinuxfr]' >> /etc/pacman.conf
+				echo 'SigLevel = Never' >> /etc/pacman.conf
+				echo 'Server = http://repo.archlinux.fr/$arch' >> /etc/pacman.conf
+				;;
+			4)
+				echo "set root password"
+				print_line
+				passwd
+				;;
+			5)
+				echo "input users name: "
+				print_line
+				read username
+				useradd -m -g users -G wheel,storage,power -s /bin/bash $username
+				echo "set user password"
+				print_line
+				passwd $username
+				pacman -S sudo
+				cp /etc/sudoers /etc/sudoers.backup
+				nano /etc/sudoers
+				;;
+			6)
+				pacman -S --noconfirm grub os-prober
+				grub-install --recheck /dev/sda
+				grub-mkconfig -o /boot/grub/grub.cfg
+				;;
+			n)
+				LOOP=0
+				;;
+			*)
+				echo "(!) choice invalid "
+				;;
+		esac
+	done
+done
+
+############################### Install Software ###############################
+pacman -S --noconfirm yaourt
+
+LOOP=1
+while [ $LOOP -eq 1 ]; do
+
+	### List options ###
+	echo ""
+	echo "Install Software"
+	print_line
+	echo "1) Install xorg"
+	echo "2) Install graphic driver"
+	echo "3) Install GUI"
+	echo "4) Install Cups"
+	echo "5) Install SSH"
+	echo "6) Install My Applications"
+	echo "7) Install My AUR Applications"
+	echo "n) Next"
+	echo ""
+
+	printf "user input: "
+	read -a OPTIONS
+
+	for OPT in ${OPTIONS[@]}; do
+
+		case "$OPT" in
+			1)
+				pacman -S --noconfirm xorg-server xorg-server-utils xorg-xinit xorg-xkill 
+				pacman -S --noconfirm xf86-input-synaptics xf86-input-mouse xf86-input-keyboard mesa
+				;;
+			2)
+				graphics_drivers
+				;;
+			3)
+				LOOP_1S=1
+				while [ $LOOP_1S -eq 1 ]; do
+
+					### List options ###
+					echo ""
+					echo "Find and install graphics driver"
+					print_line
+					echo "1) Xfce"
+					echo "2) Openbox"
+					echo "3) Cinnamon"
+					echo "4) Gnome"
+					echo "5) Mate"
+					echo "6) i3"
+					echo "b) back"
+					echo ""
+
+					printf "user input: "
+					read -a OPTIONS_1S
+
+					for OPT_1S in ${OPTIONS_1S[@]}; do
+
+						case "$OPT_1S" in
+							1)
+								xfce_install
+								;;
+							2)
+								openbox_install
+								;;
+							3)
+								cinnamon_install
+								;;
+							4)
+								gnome_install
+								;;
+							5)
+								mate_install
+								;;
+							6)
+								i3_install
+								;;
+							b)
+								LOOP_1S=0
+								;;
+							*)
+								echo "(!) choice invalid "
+								;;
+						esac
+					done
+				done
+				;;
+			4)
+				pacman -S --noconfirm cups libcups ghostscript gsfonts cups-pdf gutenprint
+				systemctl enable org.cups.cupsd
+				;;
+			4)
+				pacman -S --noconfirm openssh x11-ssh-askpass
+				systemctl enable sshd.service
+				;;
+			6)
+				pacman -S --noconfirm catfish xdg-user-dirs eclipse-java meld scrapy python-pip wget
+				pacman -S --noconfirm libreoffice libreoffice-fresh-en-GB gparted gimp simple-scan
+				pacman -S --noconfirm firefox firefox-i18n-en-us midori transmission-gtk
+				pacman -S --noconfirm audacious parole vbam-gtk handbrake mplayer cheese
+				pacman -S --noconfirm bash-completion bc gnome-calculator gksu hardinfo unetbootin
+				pacman -S --noconfirm ttf-dejavu ttf-liberation ttf-bitstream-vera fontconfig
+				pacman -S --noconfirm ntfs-3g exfat-utils dosfstools gvfs gvfs-mtp pkgstats gdmap
+				;;
+			7)
+				su - $username -c "yaourt -S numix"
+				su - $username -c "yaourt -S speedtest-cli"
+				su - $username -c "yaourt -S sublime-text-dev"
+				su - $username -c "yaourt -S menulibre"
+				su - $username -c "yaourt -S python-pafy"
+				su - $username -c "yaourt -S mps-youtube"
+				su - $username -c "yaourt -S np1-mps"
+				su - $username -c "yaourt -S codecs64"
+				su - $username -c "yaourt -S ttf-ms-fonts"
+				su - $username -c "yaourt -S google-chrome"
+				su - $username -c "yaourt -S faenza-cupertino-icon-theme"
+				su - $username -c "yaourt -S xfce-theme-greybird"
+				;;
+			n)
+				LOOP=0
+				;;
+			*)
+				echo "(!) choice invalid "
+				;;
+		esac
+	done
+done

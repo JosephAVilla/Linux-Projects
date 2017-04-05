@@ -1,0 +1,147 @@
+#!/bin/bash
+#-------------------------------------------------------------------------------
+#Created by Joseph Villa: harmony89@gmail.com
+#Based on helmuthdu mailto's aui script
+#-------------------------------------------------------------------------------
+#This program is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#-------------------------------------------------------------------------------
+
+############################### Setup sharedfuncs ##############################
+if [[ -f `pwd`/sharedfuncs ]]; then
+  source sharedfuncs
+else
+  echo "missing file: sharedfuncs"
+  exit 1
+fi
+
+################################ Setup Wireless ################################
+LOOP=1
+while [ $LOOP -eq 1 ]; do
+
+	### List options ###
+	echo ""
+	echo "Setup Internet Connection"
+	print_line
+	echo "1) Test internet connection"
+	echo "2) Wired Automatic"
+	echo "3) Wireless"
+	echo "n) Next"
+	echo ""
+
+	printf "user input: "
+	read -a OPTIONS
+
+	for OPT in ${OPTIONS[@]}; do
+		
+		### get wired / wireless name to setup internet connection ###
+		WIRED=`ip link | grep "eno\|enp" | awk '{print $2}'| sed 's/://' | sed '1!d'`
+		WIRELESS=`ip link | grep wlp | awk '{print $2}'| sed 's/://' | sed '1!d'`
+
+		case "$OPT" in
+			1)
+				ping -c 3 www.google.com
+				;;
+			2)
+				systemctl start dhcpcd@${WIRED}.service
+				break
+				;;
+			3)
+				ip link set ${WIRELESS} up
+				wifi-menu ${WIRELESS}
+				break
+				;;
+			n)
+				LOOP=0
+				break
+				;;
+			*)
+				echo "(!) choice invalid "
+				;;
+		esac
+	done
+done
+
+################################## Setup Base ##################################
+while true; do
+
+
+	### List options ###
+	echo ""
+	echo "Format drive and install base"
+	print_line
+	echo "1) Run cfdisk /dev/sda"
+	echo "2) Setup root and swap partitions"
+	echo "3) Setup root, swap and home partitions"
+	echo "4) Install base"
+	echo "5) Jump to new install"
+	echo "6) reboot"
+	echo ""
+
+	printf "user input: "
+	read -a OPTIONS
+
+	for OPT in ${OPTIONS[@]}; do
+
+		case "$OPT" in
+			1)
+				cfdisk /dev/sda
+				;;
+			2)
+				### format root ###
+				mkfs.ext4 /dev/sda1
+				
+				### format SWAP ###
+				mkswap /dev/sda2
+				swapon /dev/sda2
+				
+				mount /dev/sda1 /mnt
+				;;
+			3)
+				### format root and home ###
+				mkfs.ext4 /dev/sda1
+				mkfs.ext4 /dev/sda3
+				
+				### format SWAP ###
+				mkswap /dev/sda2
+				swapon /dev/sda2
+				
+				mount /dev/sda1 /mnt
+				mkdir -p /mnt/home
+				mount /dev/sda3 /mnt/home
+				;;
+			4)
+				timedatectl set-ntp true
+				
+				### setup mirrors ###
+				nano /etc/pacman.d/mirrorlist
+				
+				### install base ###
+				pacstrap -i /mnt base base-devel
+				
+				### generate fstab ###
+				genfstab -U /mnt > /mnt/etc/fstab
+				nano /mnt/etc/fstab
+				;;
+			5)
+				arch-chroot /mnt /bin/bash
+				;;
+			6)
+				reboot
+				;;
+			*)
+				echo "(!) choice invalid "
+				;;
+		esac
+	done
+done

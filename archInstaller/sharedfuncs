@@ -1,0 +1,146 @@
+#!/bin/bash
+#-------------------------------------------------------------------------------
+#Created by Joseph Villa: harmony89@gmail.com
+#Based on helmuthdu mailto's aui script
+#-------------------------------------------------------------------------------
+#This program is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#-------------------------------------------------------------------------------
+
+### prints line across terminal ###
+print_line() {
+	printf "%$(tput cols)s\n"|tr ' ' '-'
+}
+
+######################### sublist for graphics drivers #########################
+### "_#s" list the sub level of the menu by number ###
+graphics_drivers() {
+	LOOP_1S=1
+	while [ $LOOP_1S -eq 1 ]; do
+
+		### List options ###
+		echo ""
+		echo "Find and install graphics driver"
+		print_line
+		echo "1) Identify your graphics card"
+		echo "2) AMD/ATI Open source driver"
+		echo "3) AMD/ATI Proprietary driver"
+		echo "4) Intel Open source driver"
+		echo "5) Nvidia Open source driver"
+		echo "b) Back"
+		echo ""
+
+		printf "user input: "
+		read -a OPTIONS_1S
+
+		for OPT_1S in ${OPTIONS_1S[@]}; do
+
+			case "$OPT_1S" in
+				1)
+					lspci | grep -e VGA -e 3D
+					;;
+				2)
+					pacman -S --noconfirm xf86-video-ati lib32-mesa-libgl
+					;;
+				3)
+					su - $username -c "yaourt -S catalyst"
+					su - $username -c "yaourt -S lib32-catalyst-libgl"
+					;;
+				4)
+					pacman -S --noconfirm xf86-video-intel lib32-mesa-libgl
+					;;
+				5)
+					pacman -S --noconfirm xf86-video-nouveau lib32-mesa-libgl
+					;;
+				b)
+					LOOP_1S=0
+					;;
+				*)
+					echo "(!) choice invalid "
+					;;
+			esac
+		done
+	done
+}
+
+########################### sublist for XFCE install ###########################
+############### "_#s" list the sub level of the menu by number #################
+xfce_install() {
+	LOOP_1S=1
+	while [ $LOOP_1S -eq 1 ]; do
+
+		### List options ###
+		echo ""
+		echo "Find and install graphics driver"
+		print_line
+		echo "1) Install Xfce and goodies"
+		echo "2) Install lightdm-gtk"
+		echo "3) Install network manager and sound"
+		echo "4) Install non-free video / audio codecs"
+		echo "b) Back"
+		echo ""
+
+		printf "user input: "
+		read -a OPTIONS_1S
+
+		for OPT_1S in ${OPTIONS_1S[@]}; do
+
+			case "$OPT_1S" in
+				1)
+					pacman -S xfce4 xfce4-goodies file-roller evince
+					echo 'exec startxfce4' >> ~/.xinitrc
+					;;
+				2)
+					pacman -S --noconfirm lightdm-gtk-greeter
+					tar xvzf src.tar.gz
+					sudo mv lightdm-gtk-greeter.conf /etc/lightdm
+					sudo mv wallpaper.png /etc/lightdm
+					sudo mv grub /etc/default
+					
+					sudo mv panelhide /usr/bin/
+					sudo chmod +x /usr/bin/panelhide
+					
+					sudo mv clean /usr/bin/
+					sudo chmod +x /usr/bin/clean
+					
+					sudo mv ytplayer /usr/bin/
+					sudo chmod +x /usr/bin/ytplayer
+
+					sudo mv dwnld /usr/bin/
+					sudo chmod +x /usr/bin/dwnld
+					
+					grub-mkconfig -o /boot/grub/grub.cfg
+					;;
+				3)
+					pacman -S --noconfirm networkmanager network-manager-applet gnome-keyring pulseaudio pavucontrol
+					su - $username -c "yaourt -S xfce4-pulseaudio-plugin"
+					
+					systemctl enable lightdm.service
+					systemctl enable NetworkManager
+					systemctl start NetworkManager
+					#systemctl disable dhcpcd.service
+					;;
+				4)
+					pacman -S --noconfirm gst-plugins-base gst-plugins-base-libs gst-plugins-good gst-plugins-bad gst-plugins-ugly 
+					pacman -S --noconfirm gst-libav gstreamer0.10 gstreamer0.10-plugins libquicktime libdvdread libdvdnav libdvdcss cdrdao
+					;;
+				b)
+					LOOP_1S=0
+					;;
+				*)
+					echo "(!) choice invalid "
+					;;
+			esac
+		done
+	done
+}
